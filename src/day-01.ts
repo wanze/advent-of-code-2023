@@ -28,18 +28,40 @@ function sumCalibrationValuesPart2(input: string): number {
   let sum = 0;
 
   input.split('\n').forEach((line) => {
-    const numbers = line.match(/(\d|one|two|three|four|five|six|seven|eight|nine)/g);
-    if (numbers) {
-      const first = parseNumber(numbers[0]);
-      const last = parseNumber(numbers[numbers.length - 1]);
-      sum += parseInt(first + last, 10);
-    }
+    sum += parseInt(findFirstDigit(line) + findLastDigit(line), 10);
   });
 
   return sum;
 
-  function parseNumber(input: string): string {
-    return (Object.keys(map).includes(input)) ? map[input] : input;
+  function findLastDigit(line: string) {
+    for (let i = line.length - 1; i >= 0; i--) {
+      if (line[i].match(/\d/)) {
+        return line[i];
+      }
+      const matchedDigit = matchedDigitFromLetters(line.substring(i));
+      if (matchedDigit) {
+        return matchedDigit;
+      }
+    }
+    return '';
+  }
+
+  function findFirstDigit(line: string) {
+    for (let i = 0; i < line.length; i++) {
+      if (line[i].match(/\d/)) {
+        return line[i];
+      }
+      const matchedDigit = matchedDigitFromLetters(line.substring(0, i + 1));
+      if (matchedDigit) {
+        return matchedDigit;
+      }
+    }
+    return '';
+  }
+
+  function matchedDigitFromLetters(letters: string) {
+    const matches = letters.match(/(one|two|three|four|five|six|seven|eight|nine)/);
+    return matches ? map[matches[0]] : null;
   }
 }
 
