@@ -9,21 +9,18 @@ type Game = {
   sets: GameSet[];
 }
 
-function sumGameIdsOfPossibleGames(games: Game[], numRed: number, numGreen: number, numBlue: number) {
+
+export function day2Part1() {
+  const games = parseGames(puzzleInput());
+
   let sum = 0;
 
   for (let i = 0; i < games.length; i++) {
-    if (!isPossibleGame(games[i].sets, 'blue', numBlue)) {
-      continue;
-    }
+    const sets = games[i].sets;
 
-    if (!isPossibleGame(games[i].sets, 'green', numGreen)) {
-      continue;
-    }
-
-    if (!isPossibleGame(games[i].sets, 'red', numRed)) {
-      continue;
-    }
+    if (!isPossibleGame(sets, 'red', 12)) continue;
+    if (!isPossibleGame(sets, 'green', 13)) continue;
+    if (!isPossibleGame(sets, 'blue', 14)) continue;
 
     sum += i + 1;
   }
@@ -37,14 +34,30 @@ function sumGameIdsOfPossibleGames(games: Game[], numRed: number, numGreen: numb
   }
 }
 
-export function day2Part1() {
+export function day2Part2() {
   const games = parseGames(puzzleInput());
 
-  return sumGameIdsOfPossibleGames(games, 12, 13, 14);
-}
+  let sum = 0;
 
-export function day2Part2() {
-  // TODO: Implement
+  games.forEach(game => {
+    let maxRed = 0;
+    let maxGreen = 0;
+    let maxBlue = 0;
+
+    game.sets.forEach(set => {
+      if (set.color === 'red') {
+        maxRed = Math.max(maxRed, set.quantity);
+      } else if (set.color === 'green') {
+        maxGreen = Math.max(maxGreen, set.quantity);
+      } else if (set.color === 'blue') {
+        maxBlue = Math.max(maxBlue, set.quantity);
+      }
+    });
+
+    sum += maxRed * maxGreen * maxBlue;
+  });
+
+  return sum;
 }
 
 function parseGames(input: string): Game[] {
