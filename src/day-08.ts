@@ -1,29 +1,15 @@
 type Node = string;
 
 export function day8Part1() {
-  const input = parseInput(exampleInput2());
+  const input = parseInput(puzzleInput());
 
   let instructionIndex = 0;
   let steps = 0;
-  let currentNode = input.firstNode;
-
-  const visited = new Map<string, string>();
+  let currentNode = 'AAA';
 
   while (currentNode !== 'ZZZ') {
     const instruction = input.instructions[instructionIndex];
-    const visitedKey = currentNode + instruction;
-
-    if (visited.has(visitedKey)) {
-      console.log('visited', currentNode, instruction);
-    }
-
-    visited.set(visitedKey, input.instructions.substring(instructionIndex));
-
-    if (instruction === 'L') {
-      currentNode = input.nodes.get(currentNode)![0];
-    } else {
-      currentNode = input.nodes.get(currentNode)![1];
-    }
+    currentNode = navigate(currentNode, instruction, input.nodes);
     instructionIndex = (instructionIndex + 1) % input.instructions.length;
     steps++;
   }
@@ -31,11 +17,35 @@ export function day8Part1() {
   return steps;
 }
 
-function parseInput(input: string): { instructions: string, nodes: Map<Node, [Node, Node]>, firstNode: Node } {
+export function day8Part2() {
+  const input = parseInput(puzzleInput());
+
+  let instructionIndex = 0;
+  let steps = 0;
+  let currentNodes: Node[] = [...input.nodes.keys()].filter(node => node.endsWith('A'));
+
+  console.log(currentNodes);
+  console.log([...input.nodes.keys()].filter(node => node.endsWith('Z')));
+
+  while (!currentNodes.every(node => node.endsWith('Z'))) {
+    console.log(currentNodes);
+    const instruction = input.instructions[instructionIndex];
+    currentNodes = currentNodes.map(node => navigate(node, instruction, input.nodes));
+    instructionIndex = (instructionIndex + 1) % input.instructions.length;
+    steps++;
+  }
+
+  return steps;
+}
+
+function navigate(currentNode: Node, instruction: string, nodes: Map<Node, [Node, Node]>): Node {
+  return instruction === 'L' ? nodes.get(currentNode)![0] : nodes.get(currentNode)![1];
+}
+
+function parseInput(input: string): { instructions: string, nodes: Map<Node, [Node, Node]> } {
   const parsed = {
     instructions: '',
     nodes: new Map(),
-    firstNode: '',
   }
 
   input.split('\n').forEach((line, i) => {
@@ -45,9 +55,6 @@ function parseInput(input: string): { instructions: string, nodes: Map<Node, [No
       const [node, children] = line.split(' = ');
       const [left, right] = children.slice(1, -1).split(', ');
       parsed.nodes.set(node, [left, right]);
-      if (i === 2) {
-        parsed.firstNode = node;
-      }
     }
   });
 
@@ -72,6 +79,19 @@ function exampleInput2() {
     'AAA = (BBB, BBB)\n' +
     'BBB = (AAA, ZZZ)\n' +
     'ZZZ = (ZZZ, ZZZ)';
+}
+
+function exampleInputPart2() {
+  return 'LR\n' +
+    '\n' +
+    '11A = (11B, XXX)\n' +
+    '11B = (XXX, 11Z)\n' +
+    '11Z = (11B, XXX)\n' +
+    '22A = (22B, XXX)\n' +
+    '22B = (22C, 22C)\n' +
+    '22C = (22Z, 22Z)\n' +
+    '22Z = (22B, 22B)\n' +
+    'XXX = (XXX, XXX)';
 }
 
 function puzzleInput() {
